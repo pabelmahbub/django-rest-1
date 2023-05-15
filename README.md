@@ -30,6 +30,87 @@ django rest framework porject:
 
 ```python3 manage.py runserver```
 
+## Easy steps to create a GET,CREATE,DELETE API:
+1. In myapp -> models.py:
+```
+from django.db import models
+
+# Create your models here.
+
+class Plan(models.Model):
+    items = models.CharField(max_length=100)
+```
+2. In myapp -> admin.py:
+```
+from django.contrib import admin
+from .models import Plan
+
+# Register your models here.
+@admin.register(Plan)
+class PlanModelAdmin(admin.ModelAdmin):
+    list_display = ['id','items', ]
+```
+a. python3 manage.py makemigrations
+b. python3 manage.py migrate
+
+3. In myapp -> create a file serailizers.py:
+```
+from rest_framework import serializers
+from .models import Plan
+
+class PlanSerializers(serializers.ModelSerializer):
+    class Meta:
+        model = Plan
+        fields = ['id','items']
+ ```
+ 4. In myapp -> views.py:
+ ```
+ from django.shortcuts import render
+from rest_framework import viewsets
+from .seralizers import PlanSerializers
+from .models import Plan
+from rest_framework.generics import ListAPIView, CreateAPIView, DestroyAPIView 
+# Create your views here.
+
+
+class PlanList(ListAPIView):
+    queryset = Plan.objects.all()
+    serializer_class = PlanSerializers
+    
+class PlanCreate(CreateAPIView):
+    queryset = Plan.objects.all()
+    serializer_class = PlanSerializers
+    
+class PlanDestroy(DestroyAPIView):
+    queryset = Plan.objects.all()
+    serializer_class = PlanSerializers 
+```
+5. In myapp -> urls.py:
+```
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path('list/', views.PlanList.as_view()),
+    path('create/', views.PlanCreate.as_view()),
+    path('delete/<int:id>', views.PlanDestroy.as_view()),
+    
+]
+```
+6. In root app urls.py add it:
+```
+
+from django.contrib import admin
+from django.urls import path, include
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('', include('api1.urls'))
+]
+```
+A field is added named item in api. GET,CREATE,DELETE api.
+
+
 
 ## Easy start:
 
